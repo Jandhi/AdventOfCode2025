@@ -1,0 +1,4 @@
+fn main() {
+    println!("Advent of Code 2025 - Day 12");
+    // Your solution here
+}
