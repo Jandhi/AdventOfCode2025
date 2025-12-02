@@ -49,7 +49,7 @@ fn main() {
     println!("Advent of Code 2025 - Day 1");
     // Your solution here
 
-    let input = fs::read_to_string("day01/input.txt").expect("Failed to read file");
+    let input = include_str!("../input.txt");
     let lines: Vec<&str> = input.lines().collect();
     let mut dial = Dial::new();
 
