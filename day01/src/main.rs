@@ -1,5 +1,3 @@
-use std::fs;
-
 struct Dial {
     position: u32,
     zero_count_p1: u32,
