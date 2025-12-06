@@ -1,4 +1,3 @@
-use core::num;
 
 #[derive(Clone, Copy, Debug)]
 enum Operator {
