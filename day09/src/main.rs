@@ -151,7 +151,13 @@ fn main() {
 
     println!("p2: {}", largest_area_p2);
 
-    let scale = 0.01; // Scale down by 100
+    // Calculate scale based on the highest coordinate value
+    let max_coord = points.iter()
+        .flat_map(|p| [p.x, p.y])
+        .max()
+        .unwrap_or(1);
+    let scale = 900.0 / max_coord as f64;
+    
     let mut document = Document::new()
         .set("viewBox", (-10, -10, 1000, 1000));
 
