@@ -139,8 +139,6 @@ fn main() {
     
     for (i, seg) in horizontal_slices.iter().enumerate() {
         if rect.intersects_line(seg) {
-            println!("Rect intersects horizontal slice");
-            println!("Rect: {:?}, Segment: {:?}", rect, seg);
             intersecting_horizontal.insert(i);
         }
     }
