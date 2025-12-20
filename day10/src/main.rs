@@ -1,4 +1,5 @@
 use core::panic;
+use std::collections::VecDeque;
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
 struct Machine {
@@ -40,25 +41,13 @@ impl P2SearchNode {
         &self.joltages == goal
     }
 
-    fn is_invalid(&self, goal : &Vec<usize>) -> bool {
-        for (joltage, goal_joltage) in self.joltages.iter().zip(goal.iter()) {
-            if joltage > goal_joltage {
-                return true;
-            }
-        }
-        false
-    }
-
-    fn press(&self, machine : &Machine, button_index : usize) -> P2SearchNode {
-        let mut new_joltages = self.joltages.clone();
-        for &joltage_index in &machine.buttons[button_index] {
-            new_joltages[joltage_index] += 1;
-        }
-
-        P2SearchNode {
-            joltages: new_joltages,
-            presses: self.presses + 1,
-        }
+    fn maximum_presses_possible(&self, button : usize, machine : &Machine) -> usize {
+        machine.buttons[button].iter()
+            .map(|index| {
+                machine.joltage_goal[*index] - self.joltages[*index]
+            })
+            .min()
+            .unwrap()
     }
 }
 
@@ -95,34 +84,43 @@ impl Machine {
     }
 
     pub fn minimum_presses_p2(&self) -> usize {
-        let mut queue = std::collections::VecDeque::new();
-        let mut visited = std::collections::HashSet::new();
+        let mut answers = vec![];
+        let mut queue = VecDeque::new();
 
         let initial_node = P2SearchNode {
             joltages: vec![0; self.joltage_goal.len()],
             presses: 0,
         };
-        visited.insert(initial_node.joltages.clone());
+
         queue.push_back(initial_node);
-        
+
         while queue.len() > 0 {
             let node = queue.pop_front().unwrap();
+            
+            for i in 0..self.buttons.len() {
+                let presses = node.maximum_presses_possible(i, self);
+                
+                if presses == 0 {
+                    continue;
+                }
 
-            if node.is_solved(&self.joltage_goal) {
-                return node.presses;
-            }
-
-            for index in 0..self.buttons.len() {
-                let new_machine = node.press(self, index);
-
-                if !visited.contains(&new_machine.joltages) && !new_machine.is_invalid(&self.joltage_goal) {
-                    visited.insert(new_machine.joltages.clone());
-                    queue.push_back(new_machine);
+                let mut new_joltages = node.joltages.clone();
+                for &index in &self.buttons[i] {
+                    new_joltages[index] += presses;
+                }
+                let new_node = P2SearchNode {
+                    joltages: new_joltages,
+                    presses: node.presses + presses,
+                };
+                if new_node.is_solved(&self.joltage_goal) {
+                    answers.push(new_node.presses);
+                } else {
+                    queue.push_back(new_node);
                 }
             }
         }
 
-        panic!("No solution found");
+        answers.iter().min().cloned().unwrap_or(0)
     }
 }
 
